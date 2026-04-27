@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Classes | OPTIMAFIT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #060a13;
+            --bg-card: rgba(16, 24, 45, 0.7);
+            --accent-zumba: #ff007a;   /* Rosa neó */
+            --accent-spinning: #00f2fe; /* Blau neó */
+            --accent-pilates: #00ff88;  /* Verd neó */
+            --text-main: #ffffff;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 20px;
+        }
+
+        header {
+            padding: 30px 5%;
+            text-align: center;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; }
+        .logo span { color: var(--accent-spinning); }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        h1 { font-size: 2.5rem; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: #ccc; text-align: center; margin-bottom: 50px; }
+
+        /* GRID DE CLASSES */
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .class-card {
+            padding: 40px 30px;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .class-card:hover { transform: translateY(-10px); }
+
+        /* Icones personalitzades (blanques) */
+        .class-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .class-card h2 { margin-bottom: 15px; font-size: 1.8rem; }
+        .class-card p { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 25px; }
+
+        /* Colors per disciplina */
+        .zumba { border-bottom: 4px solid var(--accent-zumba); }
+        .spinning { border-bottom: 4px solid var(--accent-spinning); }
+        .pilates { border-bottom: 4px solid var(--accent-pilates); }
+
+        .btn-book {
+            display: inline-block;
+            padding: 10px 25px;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: 0.3s;
+        }
+
+        .zumba .btn-book { background: var(--accent-zumba); color: white; }
+        .spinning .btn-book { background: var(--accent-spinning); color: black; }
+        .pilates .btn-book { background: var(--accent-pilates); color: black; }
+
+        /* FORMULARI D'INSCRIPCIÓ */
+        .registration-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--accent-spinning); }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: white;
+            outline: none;
+        }
+
+        input:focus, select:focus { border-color: var(--accent-spinning); }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, var(--accent-spinning), #7000ff);
+            border: none;
+            color: white;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-submit:hover { opacity: 0.9; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4); }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">OPTIMA<span>FIT</span></a>
+    </header>
+
+    <div class="container">
+        <h1>Reserva la teva Classe</h1>
+        <p class="subtitle">Selecciona la teva disciplina i comença el canvi avui mateix.</p>
+
+        <div class="classes-grid">
+            <div class="class-card glass zumba">
+                <img src="fotos/zumba.png" alt="Zumba" class="class-icon">
+                <h2>Zumba</h2>
+                <p>Ritme, diversió i crema de calories amb la millor música llatina i urbana.</p>
+                <a href="#apuntat" class="btn-book">Apuntar-se</a>
+            </div>
+
+            <div class="class-card glass spinning">
+                <img src="fotos/pesas.png" alt="Spinning" class="class-icon">
+                <h2>Spinning</h2>
+                <p>Ciclisme indoor d'alta intensitat per millorar la teva resistència cardiovascular.</p>
+                <a href="#apuntat" class="btn-book">Apuntar-se</a>
+            </div>
+
+            <div class="class-card glass pilates">
+                <img src="fotos/vestidores.png" alt="Pilates" class="class-icon">
+                <h2>Pilates</h2>
+                <p>Control corporal, flexibilitat i tonificació muscular profunda.</p>
+                <a href="#apuntat" class="btn-book">Apuntar-se</a>
+            </div>
+        </div>
+
+        <div id="apuntat" class="registration-form glass">
+            <h2 style="text-align: center; margin-bottom: 30px;">Formulari d'Inscripció</h2>
+            <form action="#">
+                <div class="form-group">
+                    <label>Nom complet</label>
+                    <input type="text" placeholder="El teu nom..." required>
+                </div>
+                <div class="form-group">
+                    <label>Correu electrònic</label>
+                    <input type="email" placeholder="correu@exemple.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Selecciona la classe</label>
+                    <select>
+                        <option>Zumba (Dilluns i Dimecres)</option>
+                        <option>Spinning (Dimarts i Dijous)</option>
+                        <option>Pilates (Divendres)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Enviar Sol·licitud</button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="index.html" style="color: #666; text-decoration: none; font-size: 0.8rem;">← Tornar a l'inici</a>
+        </div>
+    </div>
+
+</body>
+</html>
