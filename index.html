@@ -40,7 +40,6 @@
         h1 { font-size: 2.5rem; margin-bottom: 10px; text-align: center; }
         .date-info { text-align: center; color: var(--accent-spinning); font-weight: 600; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* GRID DE CLASSES */
         .classes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -52,16 +51,16 @@
             padding: 40px 30px;
             transition: 0.4s;
             text-align: center;
+            position: relative;
         }
 
-        .class-card h2 { margin-bottom: 15px; font-size: 1.8rem; }
-        .status-pill {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            margin-bottom: 15px;
-            background: rgba(255,255,255,0.1);
+        .class-card h2 { margin-bottom: 5px; font-size: 1.8rem; }
+        .time-tag { font-size: 0.9rem; color: var(--accent-spinning); font-weight: 600; margin-bottom: 15px; display: block; }
+        
+        .capacity-info {
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            color: #888;
         }
 
         .zumba { border-bottom: 4px solid var(--accent-zumba); }
@@ -77,18 +76,19 @@
             transition: 0.3s;
             cursor: pointer;
             border: none;
+            width: 100%;
         }
 
         .zumba .btn-book { background: var(--accent-zumba); color: white; }
         .spinning .btn-book { background: var(--accent-spinning); color: black; }
         .pilates .btn-book { background: var(--accent-pilates); color: black; }
 
-        .btn-book.full { background: #444 !important; color: #888 !important; cursor: not-allowed; }
+        .btn-book.full { background: #333 !important; color: #666 !important; cursor: not-allowed; }
 
         /* FORMULARI */
-        .registration-form { max-width: 600px; margin: 0 auto; padding: 40px; }
+        .registration-form { max-width: 500px; margin: 0 auto; padding: 40px; }
         .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--accent-spinning); }
+        label { display: block; margin-bottom: 8px; font-size: 0.8rem; color: var(--accent-spinning); text-transform: uppercase; }
         
         input, select {
             width: 100%;
@@ -97,10 +97,10 @@
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 10px;
             color: white;
+            font-family: inherit;
         }
 
-        /* Corregir letras negras en select */
-        select option { background: #10182d; color: white; }
+        select option { background: #060a13; color: white; }
 
         .btn-submit {
             width: 100%;
@@ -111,7 +111,10 @@
             font-weight: 700;
             border-radius: 10px;
             cursor: pointer;
+            margin-top: 10px;
         }
+
+        .btn-submit:disabled { background: #222; color: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -121,73 +124,71 @@
     </header>
 
     <div class="container">
-        <h1 id="day-title">Classes de la Setmana</h1>
+        <h1 id="day-title">Horari d'Avui</h1>
         <p class="date-info" id="current-date"></p>
 
         <div class="classes-grid" id="classes-container">
             </div>
 
         <div id="apuntat" class="registration-form glass">
-            <h2 style="text-align: center; margin-bottom: 30px;">Reserva la teva plaça</h2>
+            <h2 style="text-align: center; margin-bottom: 30px;">Accés Usuari</h2>
             <form id="booking-form">
                 <div class="form-group">
-                    <label>Nom complet</label>
-                    <input type="text" id="user-name" placeholder="El teu nom..." required>
+                    <label>DNI / NIE</label>
+                    <input type="text" id="user-dni" placeholder="12345678X" required>
                 </div>
                 <div class="form-group">
-                    <label>Classe i Horari</label>
+                    <label>Contrasenya</label>
+                    <input type="password" id="user-pass" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label>Classe a reservar</label>
                     <select id="class-select">
                         </select>
                 </div>
-                <div class="form-group">
-                    <p id="counter-text" style="font-size: 0.8rem; text-align: center; color: #888;">Places ocupades avui: <span id="count-num">0</span>/20</p>
-                </div>
-                <button type="submit" class="btn-submit" id="submit-btn">Confirmar Reserva</button>
+                <button type="submit" class="btn-submit" id="submit-btn">Realitzar Reserva</button>
             </form>
         </div>
     </div>
 
     <script>
-        // 1. Base de dades del calendari (Basat en la teva foto)
+        // Base de dades segons la teva foto
         const timetable = {
             'Dilluns': [
-                { hora: '10:00-11:00', activitat: 'Spinning' },
-                { hora: '18:00-19:00', activitat: 'Zumba' },
-                { hora: '19:00-20:00', activitat: 'Pilates' }
+                { id: 'mon1', hora: '10:00-11:00', activitat: 'Spinning', cupo: 18 },
+                { id: 'mon2', hora: '18:00-19:00', activitat: 'Zumba', cupo: 20 },
+                { id: 'mon3', hora: '19:00-20:00', activitat: 'Pilates', cupo: 5 }
             ],
             'Dimarts': [
-                { hora: '10:00-11:00', activitat: 'Zumba' },
-                { hora: '16:00-17:00', activitat: 'Pilates' },
-                { hora: '19:00-20:00', activitat: 'Spinning' }
+                { id: 'tue1', hora: '10:00-11:00', activitat: 'Zumba', cupo: 12 },
+                { id: 'tue2', hora: '16:00-17:00', activitat: 'Pilates', cupo: 20 },
+                { id: 'tue3', hora: '19:00-20:00', activitat: 'Spinning', cupo: 19 }
             ],
             'Dimecres': [
-                { hora: '11:00-12:00', activitat: 'Spinning' },
-                { hora: '16:00-17:00', activitat: 'Pilates' },
-                { hora: '18:00-19:00', activitat: 'Zumba' }
+                { id: 'wed1', hora: '11:00-12:00', activitat: 'Spinning', cupo: 10 },
+                { id: 'wed2', hora: '16:00-17:00', activitat: 'Pilates', cupo: 8 },
+                { id: 'wed3', hora: '18:00-19:00', activitat: 'Zumba', cupo: 15 }
             ],
             'Dijous': [
-                { hora: '10:00-11:00', activitat: 'Pilates' },
-                { hora: '11:00-12:00', activitat: 'Spinning' },
-                { hora: '19:00-20:00', activitat: 'Zumba' }
+                { id: 'thu1', hora: '10:00-11:00', activitat: 'Pilates', cupo: 20 },
+                { id: 'thu2', hora: '11:00-12:00', activitat: 'Spinning', cupo: 2 },
+                { id: 'thu3', hora: '19:00-20:00', activitat: 'Zumba', cupo: 20 }
             ],
             'Divendres': [
-                { hora: '11:00-12:00', activitat: 'Zumba' },
-                { hora: '16:00-17:00', activitat: 'Spinning' },
-                { hora: '18:00-19:00', activitat: 'Pilates' }
+                { id: 'fri1', hora: '11:00-12:00', activitat: 'Zumba', cupo: 14 },
+                { id: 'fri2', hora: '16:00-17:00', activitat: 'Spinning', cupo: 7 },
+                { id: 'fri3', hora: '18:00-19:00', activitat: 'Pilates', cupo: 20 }
             ],
             'Dissabte': [
-                { hora: '10:00-11:00', activitat: 'Zumba' },
-                { hora: '11:00-12:00', activitat: 'Pilates' },
-                { hora: '18:00-19:00', activitat: 'Spinning' }
+                { id: 'sat1', hora: '10:00-11:00', activitat: 'Zumba', cupo: 20 },
+                { id: 'sat2', hora: '11:00-12:00', activitat: 'Pilates', cupo: 19 },
+                { id: 'sat3', hora: '18:00-19:00', activitat: 'Spinning', cupo: 11 }
             ]
         };
 
         const diesSetmana = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
-        
-        // 2. Simulació de comptador de persones (En una web real això vindria d'una base de dades)
-        let inscritosHoy = Math.floor(Math.random() * 15); // Simulem que ja hi ha gent
-        
-        function updateUI() {
+
+        function renderApp() {
             const ara = new Date();
             const nomDia = diesSetmana[ara.getDay()];
             document.getElementById('current-date').innerText = nomDia + ", " + ara.toLocaleDateString();
@@ -195,55 +196,71 @@
             const classesAvui = timetable[nomDia] || [];
             const container = document.getElementById('classes-container');
             const select = document.getElementById('class-select');
-            const countNum = document.getElementById('count-num');
             
-            countNum.innerText = inscritosHoy;
             container.innerHTML = '';
             select.innerHTML = '';
 
             if (classesAvui.length === 0) {
-                container.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Avui el gimnàs està obert (6-23h) però no hi ha classes dirigides.</p>";
+                container.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Avui no hi ha classes programades.</p>";
+                document.getElementById('submit-btn').disabled = true;
+                return;
             }
 
             classesAvui.forEach(c => {
-                // Crear targetes
+                const isFull = c.cupo >= 20;
+                
+                // Targetes
                 const card = document.createElement('div');
                 card.className = `class-card glass ${c.activitat.toLowerCase()}`;
                 card.innerHTML = `
-                    <div class="status-pill">${c.hora}</div>
+                    <span class="time-tag">${c.hora}</span>
                     <h2>${c.activitat}</h2>
-                    <p>Classe dirigida per millorar la teva forma.</p>
-                    <button class="btn-book ${inscritosHoy >= 20 ? 'full' : ''}" onclick="window.location.href='#apuntat'">
-                        ${inscritosHoy >= 20 ? 'Llimit assolit' : 'Reservar'}
+                    <p class="capacity-info">Places: <strong>${c.cupo}/20</strong></p>
+                    <button class="btn-book ${isFull ? 'full' : ''}" 
+                            onclick="${isFull ? '' : "setSelect('"+c.id+"')"}" 
+                            ${isFull ? 'disabled' : ''}>
+                        ${isFull ? 'CLASSE PLENA' : 'RESERVAR'}
                     </button>
                 `;
                 container.appendChild(card);
 
-                // Afegir al select
-                const opt = document.createElement('option');
-                opt.value = `${c.activitat} - ${c.hora}`;
-                opt.text = `${c.activitat} (${c.hora})`;
-                select.appendChild(opt);
+                // Opcions del select
+                if (!isFull) {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.text = `${c.activitat} (${c.hora})`;
+                    select.appendChild(opt);
+                }
             });
-
-            // Bloquejar botó si s'arriba a 20
-            if (inscritosHoy >= 20) {
-                document.getElementById('submit-btn').disabled = true;
-                document.getElementById('submit-btn').innerText = "LIMIT DIARI ASSOLIT";
-            }
         }
 
-        // 3. Maneig del formulari
+        // Funció per marcar el select automàticament en clicar la targeta
+        window.setSelect = function(id) {
+            document.getElementById('class-select').value = id;
+            document.getElementById('apuntat').scrollIntoView({behavior: 'smooth'});
+        };
+
+        // Gestió de la reserva
         document.getElementById('booking-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            if (inscritosHoy < 20) {
-                inscritosHoy++;
-                alert("Reserva confirmada! T'esperem.");
-                updateUI();
+            const classId = document.getElementById('class-select').value;
+            const dni = document.getElementById('user-dni').value;
+            
+            // Trobar la classe a la "DB" i sumar 1
+            const ara = new Date();
+            const nomDia = diesSetmana[ara.getDay()];
+            const clase = timetable[nomDia].find(c => c.id === classId);
+
+            if (clase && clase.cupo < 20) {
+                clase.cupo++;
+                alert(`Perfecte! DNI ${dni}, la teva reserva per ${clase.activitat} ha estat confirmada.`);
+                renderApp();
+            } else {
+                alert("Ho sentim, aquesta classe s'ha omplert mentre omplies el formulari.");
             }
         });
 
-        updateUI();
+        renderApp();
     </script>
 </body>
 </html>
