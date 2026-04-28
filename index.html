@@ -77,6 +77,8 @@
         .spinning .btn-book { background: var(--accent-spinning); color: black; }
         .pilates .btn-book { background: var(--accent-pilates); color: black; }
 
+        .btn-book:disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; }
+
         .registration-form { max-width: 500px; margin: 0 auto; padding: 40px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-size: 0.8rem; color: var(--accent-spinning); text-transform: uppercase; }
@@ -108,14 +110,15 @@
 <body>
 
     <header>
-        <a href="index.html" class="logo">ARES<span>FIT PRO</span></a>
+        <a href="#" class="logo">ARES<span>FIT PRO</span></a>
     </header>
 
     <div class="container">
         <h1 id="day-title">Horari d'Avui</h1>
-        <p class="date-info" id="current-date"></p>
+        <p class="date-info" id="current-date">Carregant data...</p>
 
-        <div class="classes-grid" id="classes-container"></div>
+        <div class="classes-grid" id="classes-container">
+            </div>
 
         <div id="apuntat" class="registration-form glass">
             <h2 style="text-align: center; margin-bottom: 30px;">Identificació Soci</h2>
@@ -130,7 +133,9 @@
                 </div>
                 <div class="form-group">
                     <label>Selecciona la classe</label>
-                    <select id="class-select" required></select>
+                    <select id="class-select" required>
+                        <option value="" disabled selected>Tria una classe de la llista</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn-submit" id="submit-btn">Confirmar Reserva</button>
             </form>
@@ -138,6 +143,7 @@
     </div>
 
     <script>
+        // Configuració d'horaris basat en la teva foto
         const timetable = {
             'Dilluns': [{ id: 'mon1', h: '10-11', a: 'Spinning' }, { id: 'mon2', h: '18-19', a: 'Zumba' }, { id: 'mon3', h: '19-20', a: 'Pilates' }],
             'Dimarts': [{ id: 'tue1', h: '10-11', a: 'Zumba' }, { id: 'tue2', h: '16-17', a: 'Pilates' }, { id: 'tue3', h: '19-20', a: 'Spinning' }],
@@ -149,29 +155,57 @@
 
         const dies = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
 
-        function render() {
+        async function render() {
             const ara = new Date();
             const nomDia = dies[ara.getDay()];
             document.getElementById('current-date').innerText = nomDia + ", " + ara.toLocaleDateString();
             
-            const clases = timetable[nomDia] || [];
-            const container = document.getElementById('classes-container');
-            const select = document.getElementById('class-select');
-            
-            container.innerHTML = '';
-            select.innerHTML = '';
+            try {
+                // 1. Demanar els recomptes reals a la API de Vercel
+                const response = await fetch('/api/get_counts');
+                const counts = await response.json();
 
-            clases.forEach(c => {
-                container.innerHTML += `
-                    <div class="class-card glass ${c.a.toLowerCase()}">
-                        <span class="time-tag">${c.h}h</span>
-                        <h2>${c.a}</h2>
-                        <p class="capacity-info">Límit: 20 persones</p>
-                        <button class="btn-book" onclick="setSelect('${c.id}')">Reservar</button>
-                    </div>
-                `;
-                select.innerHTML += `<option value="${c.id}">${c.a} (${c.h}h)</option>`;
-            });
+                const clases = timetable[nomDia] || [];
+                const container = document.getElementById('classes-container');
+                const select = document.getElementById('class-select');
+                
+                container.innerHTML = '';
+                // No buidem el select completament per mantenir el placeholder
+                select.innerHTML = '<option value="" disabled selected>Tria una classe de la llista</option>';
+
+                if (clases.length === 0) {
+                    container.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>Avui no hi ha classes programades.</p>";
+                    return;
+                }
+
+                clases.forEach(c => {
+                    const numActual = counts[c.id] || 0;
+                    const isFull = numActual >= 20;
+
+                    // Dibuixar Targeta
+                    container.innerHTML += `
+                        <div class="class-card glass ${c.a.toLowerCase()}">
+                            <span class="time-tag">${c.h}h</span>
+                            <h2>${c.a}</h2>
+                            <p class="capacity-info">Reservats: <strong>${numActual}/20</strong></p>
+                            <button class="btn-book" ${isFull ? 'disabled' : ''} onclick="setSelect('${c.id}')">
+                                ${isFull ? 'CLASSE PLENA' : 'Reservar'}
+                            </button>
+                        </div>
+                    `;
+
+                    // Afegir al Select si no està plena
+                    if (!isFull) {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.text = `${c.a} (${c.h}h)`;
+                        select.appendChild(opt);
+                    }
+                });
+            } catch (error) {
+                console.error("Error carregant dades:", error);
+                document.getElementById('classes-container').innerHTML = "<p style='text-align:center; color:red;'>Error de connexió amb el servidor.</p>";
+            }
         }
 
         window.setSelect = (id) => {
@@ -179,22 +213,42 @@
             document.getElementById('apuntat').scrollIntoView({behavior: 'smooth'});
         };
 
-        document.getElementById('booking-form').addEventListener('submit', function(e) {
+        // GESTIÓ DEL FORMULARI CAP A LA API
+        document.getElementById('booking-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const data = new FormData();
-            data.append('dni', document.getElementById('user-dni').value);
-            data.append('pass', document.getElementById('user-pass').value);
-            data.append('clase_id', document.getElementById('class-select').value);
+            
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "Processant...";
 
-            fetch('reserva.php', { method: 'POST', body: data })
-            .then(res => res.json())
-            .then(resData => {
+            const datos = {
+                dni: document.getElementById('user-dni').value,
+                pass: document.getElementById('user-pass').value,
+                clase_id: document.getElementById('class-select').value
+            };
+
+            try {
+                const response = await fetch('/api/reserva', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+
+                const resData = await response.json();
                 alert(resData.message);
-                if(resData.status === "success") location.reload();
-            })
-            .catch(() => alert("Error de connexió amb el servidor"));
+
+                if(resData.status === "success") {
+                    location.reload();
+                }
+            } catch (error) {
+                alert("Error crític de connexió.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Reserva";
+            }
         });
 
+        // Inicialitzar
         render();
     </script>
 </body>
