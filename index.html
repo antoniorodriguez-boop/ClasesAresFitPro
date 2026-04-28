@@ -9,9 +9,9 @@
         :root {
             --bg-dark: #060a13;
             --bg-card: rgba(16, 24, 45, 0.7);
-            --accent-zumba: #ff007a;   /* Rosa neó */
-            --accent-spinning: #00f2fe; /* Blau neó */
-            --accent-pilates: #00ff88;  /* Verd neó */
+            --accent-zumba: #ff007a;
+            --accent-spinning: #00f2fe;
+            --accent-pilates: #00ff88;
             --text-main: #ffffff;
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -32,18 +32,13 @@
             border-radius: 20px;
         }
 
-        header {
-            padding: 30px 5%;
-            text-align: center;
-        }
-
+        header { padding: 30px 5%; text-align: center; }
         .logo { font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; }
         .logo span { color: var(--accent-spinning); }
 
         .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-
         h1 { font-size: 2.5rem; margin-bottom: 10px; text-align: center; }
-        .subtitle { color: #ccc; text-align: center; margin-bottom: 50px; }
+        .date-info { text-align: center; color: var(--accent-spinning); font-weight: 600; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
 
         /* GRID DE CLASSES */
         .classes-grid {
@@ -56,25 +51,19 @@
         .class-card {
             padding: 40px 30px;
             transition: 0.4s;
-            position: relative;
-            overflow: hidden;
             text-align: center;
         }
 
-        .class-card:hover { transform: translateY(-10px); }
-
-        /* Icones personalitzades (blanques) */
-        .class-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            filter: brightness(0) invert(1);
+        .class-card h2 { margin-bottom: 15px; font-size: 1.8rem; }
+        .status-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.1);
         }
 
-        .class-card h2 { margin-bottom: 15px; font-size: 1.8rem; }
-        .class-card p { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-bottom: 25px; }
-
-        /* Colors per disciplina */
         .zumba { border-bottom: 4px solid var(--accent-zumba); }
         .spinning { border-bottom: 4px solid var(--accent-spinning); }
         .pilates { border-bottom: 4px solid var(--accent-pilates); }
@@ -86,19 +75,18 @@
             font-weight: 700;
             border-radius: 50px;
             transition: 0.3s;
+            cursor: pointer;
+            border: none;
         }
 
         .zumba .btn-book { background: var(--accent-zumba); color: white; }
         .spinning .btn-book { background: var(--accent-spinning); color: black; }
         .pilates .btn-book { background: var(--accent-pilates); color: black; }
 
-        /* FORMULARI D'INSCRIPCIÓ */
-        .registration-form {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 40px;
-        }
+        .btn-book.full { background: #444 !important; color: #888 !important; cursor: not-allowed; }
 
+        /* FORMULARI */
+        .registration-form { max-width: 600px; margin: 0 auto; padding: 40px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--accent-spinning); }
         
@@ -109,10 +97,10 @@
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 10px;
             color: white;
-            outline: none;
         }
 
-        input:focus, select:focus { border-color: var(--accent-spinning); }
+        /* Corregir letras negras en select */
+        select option { background: #10182d; color: white; }
 
         .btn-submit {
             width: 100%;
@@ -123,13 +111,6 @@
             font-weight: 700;
             border-radius: 10px;
             cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .btn-submit:hover { opacity: 0.9; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4); }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
         }
     </style>
 </head>
@@ -140,59 +121,129 @@
     </header>
 
     <div class="container">
-        <h1>Reserva la teva Classe</h1>
-        <p class="subtitle">Selecciona la teva disciplina i comença el canvi avui mateix.</p>
+        <h1 id="day-title">Classes de la Setmana</h1>
+        <p class="date-info" id="current-date"></p>
 
-        <div class="classes-grid">
-            <div class="class-card glass zumba">
-                <img src="fotos/zumba.png" alt="Zumba" class="class-icon">
-                <h2>Zumba</h2>
-                <p>Ritme, diversió i crema de calories amb la millor música llatina i urbana.</p>
-                <a href="#apuntat" class="btn-book">Apuntar-se</a>
+        <div class="classes-grid" id="classes-container">
             </div>
-
-            <div class="class-card glass spinning">
-                <img src="fotos/pesas.png" alt="Spinning" class="class-icon">
-                <h2>Spinning</h2>
-                <p>Ciclisme indoor d'alta intensitat per millorar la teva resistència cardiovascular.</p>
-                <a href="#apuntat" class="btn-book">Apuntar-se</a>
-            </div>
-
-            <div class="class-card glass pilates">
-                <img src="fotos/vestidores.png" alt="Pilates" class="class-icon">
-                <h2>Pilates</h2>
-                <p>Control corporal, flexibilitat i tonificació muscular profunda.</p>
-                <a href="#apuntat" class="btn-book">Apuntar-se</a>
-            </div>
-        </div>
 
         <div id="apuntat" class="registration-form glass">
-            <h2 style="text-align: center; margin-bottom: 30px;">Formulari d'Inscripció</h2>
-            <form action="#">
+            <h2 style="text-align: center; margin-bottom: 30px;">Reserva la teva plaça</h2>
+            <form id="booking-form">
                 <div class="form-group">
                     <label>Nom complet</label>
-                    <input type="text" placeholder="El teu nom..." required>
+                    <input type="text" id="user-name" placeholder="El teu nom..." required>
                 </div>
                 <div class="form-group">
-                    <label>Correu electrònic</label>
-                    <input type="email" placeholder="correu@exemple.com" required>
+                    <label>Classe i Horari</label>
+                    <select id="class-select">
+                        </select>
                 </div>
                 <div class="form-group">
-                    <label>Selecciona la classe</label>
-                    <select>
-                        <option>Zumba (Dilluns i Dimecres)</option>
-                        <option>Spinning (Dimarts i Dijous)</option>
-                        <option>Pilates (Divendres)</option>
-                    </select>
+                    <p id="counter-text" style="font-size: 0.8rem; text-align: center; color: #888;">Places ocupades avui: <span id="count-num">0</span>/20</p>
                 </div>
-                <button type="submit" class="btn-submit">Enviar Sol·licitud</button>
+                <button type="submit" class="btn-submit" id="submit-btn">Confirmar Reserva</button>
             </form>
-        </div>
-
-        <div style="text-align: center; margin-top: 40px;">
-            <a href="index.html" style="color: #666; text-decoration: none; font-size: 0.8rem;">← Tornar a l'inici</a>
         </div>
     </div>
 
+    <script>
+        // 1. Base de dades del calendari (Basat en la teva foto)
+        const timetable = {
+            'Dilluns': [
+                { hora: '10:00-11:00', activitat: 'Spinning' },
+                { hora: '18:00-19:00', activitat: 'Zumba' },
+                { hora: '19:00-20:00', activitat: 'Pilates' }
+            ],
+            'Dimarts': [
+                { hora: '10:00-11:00', activitat: 'Zumba' },
+                { hora: '16:00-17:00', activitat: 'Pilates' },
+                { hora: '19:00-20:00', activitat: 'Spinning' }
+            ],
+            'Dimecres': [
+                { hora: '11:00-12:00', activitat: 'Spinning' },
+                { hora: '16:00-17:00', activitat: 'Pilates' },
+                { hora: '18:00-19:00', activitat: 'Zumba' }
+            ],
+            'Dijous': [
+                { hora: '10:00-11:00', activitat: 'Pilates' },
+                { hora: '11:00-12:00', activitat: 'Spinning' },
+                { hora: '19:00-20:00', activitat: 'Zumba' }
+            ],
+            'Divendres': [
+                { hora: '11:00-12:00', activitat: 'Zumba' },
+                { hora: '16:00-17:00', activitat: 'Spinning' },
+                { hora: '18:00-19:00', activitat: 'Pilates' }
+            ],
+            'Dissabte': [
+                { hora: '10:00-11:00', activitat: 'Zumba' },
+                { hora: '11:00-12:00', activitat: 'Pilates' },
+                { hora: '18:00-19:00', activitat: 'Spinning' }
+            ]
+        };
+
+        const diesSetmana = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
+        
+        // 2. Simulació de comptador de persones (En una web real això vindria d'una base de dades)
+        let inscritosHoy = Math.floor(Math.random() * 15); // Simulem que ja hi ha gent
+        
+        function updateUI() {
+            const ara = new Date();
+            const nomDia = diesSetmana[ara.getDay()];
+            document.getElementById('current-date').innerText = nomDia + ", " + ara.toLocaleDateString();
+            
+            const classesAvui = timetable[nomDia] || [];
+            const container = document.getElementById('classes-container');
+            const select = document.getElementById('class-select');
+            const countNum = document.getElementById('count-num');
+            
+            countNum.innerText = inscritosHoy;
+            container.innerHTML = '';
+            select.innerHTML = '';
+
+            if (classesAvui.length === 0) {
+                container.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Avui el gimnàs està obert (6-23h) però no hi ha classes dirigides.</p>";
+            }
+
+            classesAvui.forEach(c => {
+                // Crear targetes
+                const card = document.createElement('div');
+                card.className = `class-card glass ${c.activitat.toLowerCase()}`;
+                card.innerHTML = `
+                    <div class="status-pill">${c.hora}</div>
+                    <h2>${c.activitat}</h2>
+                    <p>Classe dirigida per millorar la teva forma.</p>
+                    <button class="btn-book ${inscritosHoy >= 20 ? 'full' : ''}" onclick="window.location.href='#apuntat'">
+                        ${inscritosHoy >= 20 ? 'Llimit assolit' : 'Reservar'}
+                    </button>
+                `;
+                container.appendChild(card);
+
+                // Afegir al select
+                const opt = document.createElement('option');
+                opt.value = `${c.activitat} - ${c.hora}`;
+                opt.text = `${c.activitat} (${c.hora})`;
+                select.appendChild(opt);
+            });
+
+            // Bloquejar botó si s'arriba a 20
+            if (inscritosHoy >= 20) {
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('submit-btn').innerText = "LIMIT DIARI ASSOLIT";
+            }
+        }
+
+        // 3. Maneig del formulari
+        document.getElementById('booking-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (inscritosHoy < 20) {
+                inscritosHoy++;
+                alert("Reserva confirmada! T'esperem.");
+                updateUI();
+            }
+        });
+
+        updateUI();
+    </script>
 </body>
 </html>
