@@ -51,17 +51,10 @@
             padding: 40px 30px;
             transition: 0.4s;
             text-align: center;
-            position: relative;
         }
 
-        .class-card h2 { margin-bottom: 5px; font-size: 1.8rem; }
-        .time-tag { font-size: 0.9rem; color: var(--accent-spinning); font-weight: 600; margin-bottom: 15px; display: block; }
-        
-        .capacity-info {
-            font-size: 0.8rem;
-            margin-bottom: 20px;
-            color: #888;
-        }
+        .time-tag { font-size: 0.9rem; color: var(--accent-spinning); font-weight: 600; margin-bottom: 10px; display: block; }
+        .capacity-info { font-size: 0.8rem; margin-bottom: 20px; color: #888; }
 
         .zumba { border-bottom: 4px solid var(--accent-zumba); }
         .spinning { border-bottom: 4px solid var(--accent-spinning); }
@@ -70,7 +63,6 @@
         .btn-book {
             display: inline-block;
             padding: 10px 25px;
-            text-decoration: none;
             font-weight: 700;
             border-radius: 50px;
             transition: 0.3s;
@@ -83,12 +75,11 @@
         .spinning .btn-book { background: var(--accent-spinning); color: black; }
         .pilates .btn-book { background: var(--accent-pilates); color: black; }
 
-        .btn-book.full { background: #333 !important; color: #666 !important; cursor: not-allowed; }
+        .btn-book:disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; }
 
-        /* FORMULARI */
         .registration-form { max-width: 500px; margin: 0 auto; padding: 40px; }
         .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.8rem; color: var(--accent-spinning); text-transform: uppercase; }
+        label { display: block; margin-bottom: 8px; font-size: 0.8rem; color: var(--accent-spinning); }
         
         input, select {
             width: 100%;
@@ -97,7 +88,6 @@
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 10px;
             color: white;
-            font-family: inherit;
         }
 
         select option { background: #060a13; color: white; }
@@ -111,10 +101,7 @@
             font-weight: 700;
             border-radius: 10px;
             cursor: pointer;
-            margin-top: 10px;
         }
-
-        .btn-submit:disabled { background: #222; color: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -127,8 +114,7 @@
         <h1 id="day-title">Horari d'Avui</h1>
         <p class="date-info" id="current-date"></p>
 
-        <div class="classes-grid" id="classes-container">
-            </div>
+        <div class="classes-grid" id="classes-container"></div>
 
         <div id="apuntat" class="registration-form glass">
             <h2 style="text-align: center; margin-bottom: 30px;">Accés Usuari</h2>
@@ -143,8 +129,7 @@
                 </div>
                 <div class="form-group">
                     <label>Classe a reservar</label>
-                    <select id="class-select">
-                        </select>
+                    <select id="class-select"></select>
                 </div>
                 <button type="submit" class="btn-submit" id="submit-btn">Realitzar Reserva</button>
             </form>
@@ -152,115 +137,98 @@
     </div>
 
     <script>
-        // Base de dades segons la teva foto
-        const timetable = {
-            'Dilluns': [
-                { id: 'mon1', hora: '10:00-11:00', activitat: 'Spinning', cupo: 18 },
-                { id: 'mon2', hora: '18:00-19:00', activitat: 'Zumba', cupo: 20 },
-                { id: 'mon3', hora: '19:00-20:00', activitat: 'Pilates', cupo: 5 }
-            ],
-            'Dimarts': [
-                { id: 'tue1', hora: '10:00-11:00', activitat: 'Zumba', cupo: 12 },
-                { id: 'tue2', hora: '16:00-17:00', activitat: 'Pilates', cupo: 20 },
-                { id: 'tue3', hora: '19:00-20:00', activitat: 'Spinning', cupo: 19 }
-            ],
-            'Dimecres': [
-                { id: 'wed1', hora: '11:00-12:00', activitat: 'Spinning', cupo: 10 },
-                { id: 'wed2', hora: '16:00-17:00', activitat: 'Pilates', cupo: 8 },
-                { id: 'wed3', hora: '18:00-19:00', activitat: 'Zumba', cupo: 15 }
-            ],
-            'Dijous': [
-                { id: 'thu1', hora: '10:00-11:00', activitat: 'Pilates', cupo: 20 },
-                { id: 'thu2', hora: '11:00-12:00', activitat: 'Spinning', cupo: 2 },
-                { id: 'thu3', hora: '19:00-20:00', activitat: 'Zumba', cupo: 20 }
-            ],
-            'Divendres': [
-                { id: 'fri1', hora: '11:00-12:00', activitat: 'Zumba', cupo: 14 },
-                { id: 'fri2', hora: '16:00-17:00', activitat: 'Spinning', cupo: 7 },
-                { id: 'fri3', hora: '18:00-19:00', activitat: 'Pilates', cupo: 20 }
-            ],
-            'Dissabte': [
-                { id: 'sat1', hora: '10:00-11:00', activitat: 'Zumba', cupo: 20 },
-                { id: 'sat2', hora: '11:00-12:00', activitat: 'Pilates', cupo: 19 },
-                { id: 'sat3', hora: '18:00-19:00', activitat: 'Spinning', cupo: 11 }
-            ]
+        // 1. CONFIGURACIÓ INICIAL
+        const timetableData = {
+            'Dilluns': [{ id: 'mon1', h: '10-11', a: 'Spinning' }, { id: 'mon2', h: '18-19', a: 'Zumba' }, { id: 'mon3', h: '19-20', a: 'Pilates' }],
+            'Dimarts': [{ id: 'tue1', h: '10-11', a: 'Zumba' }, { id: 'tue2', h: '16-17', a: 'Pilates' }, { id: 'tue3', h: '19-20', a: 'Spinning' }],
+            'Dimecres': [{ id: 'wed1', h: '11-12', a: 'Spinning' }, { id: 'wed2', h: '16-17', a: 'Pilates' }, { id: 'wed3', h: '18-19', a: 'Zumba' }],
+            'Dijous': [{ id: 'thu1', h: '10-11', a: 'Pilates' }, { id: 'thu2', h: '11-12', a: 'Spinning' }, { id: 'thu3', h: '19-20', a: 'Zumba' }],
+            'Divendres': [{ id: 'fri1', h: '11-12', a: 'Zumba' }, { id: 'fri2', h: '16-17', a: 'Spinning' }, { id: 'fri3', h: '18-19', a: 'Pilates' }],
+            'Dissabte': [{ id: 'sat1', h: '10-11', a: 'Zumba' }, { id: 'sat2', h: '11-12', a: 'Pilates' }, { id: 'sat3', h: '18-19', a: 'Spinning' }]
         };
 
         const diesSetmana = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
 
-        function renderApp() {
+        // 2. LÒGICA DE PERSISTÈNCIA I REINICI (LocalStorage)
+        function getStorageData() {
+            const todayStr = new Date().toLocaleDateString();
+            const storedDate = localStorage.getItem('last_visit_date');
+            
+            // Si el dia guardat és diferent al d'avui, reiniciem a 0 (Funció 00:00)
+            if (storedDate !== todayStr) {
+                localStorage.setItem('last_visit_date', todayStr);
+                const resetData = {};
+                Object.values(timetableData).flat().forEach(c => resetData[c.id] = 0);
+                localStorage.setItem('gym_counts', JSON.stringify(resetData));
+                return resetData;
+            }
+            
+            return JSON.parse(localStorage.getItem('gym_counts'));
+        }
+
+        function saveCount(classId, newCount) {
+            const data = JSON.parse(localStorage.getItem('gym_counts'));
+            data[classId] = newCount;
+            localStorage.setItem('gym_counts', JSON.stringify(data));
+        }
+
+        // 3. RENDERITZAT
+        function render() {
             const ara = new Date();
             const nomDia = diesSetmana[ara.getDay()];
             document.getElementById('current-date').innerText = nomDia + ", " + ara.toLocaleDateString();
             
-            const classesAvui = timetable[nomDia] || [];
+            const classesAvui = timetableData[nomDia] || [];
+            const counts = getStorageData();
+            
             const container = document.getElementById('classes-container');
             const select = document.getElementById('class-select');
-            
             container.innerHTML = '';
             select.innerHTML = '';
 
-            if (classesAvui.length === 0) {
-                container.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>Avui no hi ha classes programades.</p>";
-                document.getElementById('submit-btn').disabled = true;
-                return;
-            }
-
             classesAvui.forEach(c => {
-                const isFull = c.cupo >= 20;
-                
-                // Targetes
-                const card = document.createElement('div');
-                card.className = `class-card glass ${c.activitat.toLowerCase()}`;
-                card.innerHTML = `
-                    <span class="time-tag">${c.hora}</span>
-                    <h2>${c.activitat}</h2>
-                    <p class="capacity-info">Places: <strong>${c.cupo}/20</strong></p>
-                    <button class="btn-book ${isFull ? 'full' : ''}" 
-                            onclick="${isFull ? '' : "setSelect('"+c.id+"')"}" 
-                            ${isFull ? 'disabled' : ''}>
-                        ${isFull ? 'CLASSE PLENA' : 'RESERVAR'}
-                    </button>
-                `;
-                container.appendChild(card);
+                const currentNum = counts[c.id] || 0;
+                const isFull = currentNum >= 20;
 
-                // Opcions del select
+                container.innerHTML += `
+                    <div class="class-card glass ${c.a.toLowerCase()}">
+                        <span class="time-tag">${c.h}h</span>
+                        <h2>${c.a}</h2>
+                        <p class="capacity-info">Ocupació: <strong>${currentNum}/20</strong></p>
+                        <button class="btn-book" ${isFull ? 'disabled' : `onclick="setSelect('${c.id}')"`}>
+                            ${isFull ? 'CLASSE PLENA' : 'RESERVAR'}
+                        </button>
+                    </div>
+                `;
+
                 if (!isFull) {
-                    const opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.text = `${c.activitat} (${c.hora})`;
-                    select.appendChild(opt);
+                    select.innerHTML += `<option value="${c.id}">${c.a} (${c.h}h)</option>`;
                 }
             });
         }
 
-        // Funció per marcar el select automàticament en clicar la targeta
-        window.setSelect = function(id) {
+        window.setSelect = (id) => {
             document.getElementById('class-select').value = id;
             document.getElementById('apuntat').scrollIntoView({behavior: 'smooth'});
         };
 
-        // Gestió de la reserva
+        // 4. GESTIÓ DEL FORMULARI
         document.getElementById('booking-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const classId = document.getElementById('class-select').value;
-            const dni = document.getElementById('user-dni').value;
-            
-            // Trobar la classe a la "DB" i sumar 1
-            const ara = new Date();
-            const nomDia = diesSetmana[ara.getDay()];
-            const clase = timetable[nomDia].find(c => c.id === classId);
+            const counts = getStorageData();
 
-            if (clase && clase.cupo < 20) {
-                clase.cupo++;
-                alert(`Perfecte! DNI ${dni}, la teva reserva per ${clase.activitat} ha estat confirmada.`);
-                renderApp();
+            if (counts[classId] < 20) {
+                counts[classId]++;
+                saveCount(classId, counts[classId]);
+                alert("Reserva confirmada correctament!");
+                render();
             } else {
-                alert("Ho sentim, aquesta classe s'ha omplert mentre omplies el formulari.");
+                alert("Ho sentim, la classe s'ha omplert.");
             }
         });
 
-        renderApp();
+        render();
     </script>
 </body>
 </html>
