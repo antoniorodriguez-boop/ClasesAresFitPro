@@ -1,4 +1,7 @@
 <?php
+// Desactivamos los warnings para que no rompan el JSON de la web
+error_reporting(0); 
+
 $serverName = "192.168.70.10\SQLEXPRESS"; 
 $connectionOptions = array(
     "Database" => "AresFitPro_DB",
@@ -17,29 +20,26 @@ if (!$conn) {
 
 $fecha_hoy = date("Y-m-d");
 
-// Consulta simplificada
-$sql = "SELECT Clase_apuntada, COUNT(*) 
-        FROM Reservas 
-        WHERE Data = ? 
-        GROUP BY Clase_apuntada";
-
+// Consulta estándar
+$sql = "SELECT Clase_apuntada, COUNT(*) FROM Reservas WHERE Data = ? GROUP BY Clase_apuntada";
 $params = array($fecha_hoy);
 $stmt = sqlsrv_query($conn, $sql, $params);
 
 $counts = [];
-if ($stmt) {
-    // Usamos el número 2 para obtener un array con números (0, 1, 2...)
-    // En lugar de nombres, así no fallará nunca el "array key"
-    while($row = sqlsrv_fetch_array($stmt, 2)) {
-        $nombre_clase = $row[0]; // Primera columna (Clase_apuntada)
-        $cantidad = (int)$row[1]; // Segunda columna (COUNT)
-        $counts[$nombre_clase] = $cantidad;
+
+if ($stmt !== false) {
+    // Usamos SQLSRV_FETCH_NUMERIC para forzar los índices 0 y 1
+    while($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_NUMERIC)) {
+        if (isset($row[0])) {
+            $counts[$row[0]] = (int)$row[1];
+        }
     }
 }
 
+// Si la base de datos está vacía, enviamos un objeto vacío limpio
 header('Content-Type: application/json');
 echo json_encode($counts);
 
-sqlsrv_free_stmt($stmt);
+if ($stmt) sqlsrv_free_stmt($stmt);
 sqlsrv_close($conn);
 ?>
