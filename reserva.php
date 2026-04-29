@@ -33,7 +33,8 @@ if (!$dni || !$clase) {
 $sql_user = "SELECT Nom, Cognoms FROM Socis WHERE DNI = ?";
 $stmt_user = sqlsrv_query($conn, $sql_user, array($dni));
 
-if ($stmt_user && $row_user = sqlsrv_fetch_array($stmt_user, SQL_SRV_FETCH_ASSOC)) {
+// AQUÍ ESTÁ EL CAMBIO: Usamos , 1 para evitar el error de la constante
+if ($stmt_user && $row_user = sqlsrv_fetch_array($stmt_user, 1)) { 
     $sql_ins = "INSERT INTO Reservas (DNI_soci, Nom, Cognom, Clase_apuntada, Data) VALUES (?, ?, ?, ?, ?)";
     $params_ins = array($dni, $row_user['Nom'], $row_user['Cognoms'], $clase, $fecha);
     
