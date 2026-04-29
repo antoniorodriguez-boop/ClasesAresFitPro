@@ -1,22 +1,30 @@
 <?php
 // Configuración para SQL Server
-$serverName = "192.168.70.10"; // Ej: "192.168.1.50"
+$serverName = "192.168.70.10\SQLEXPRESS"; 
 $connectionOptions = array(
     "Database" => "AresFitPro_DB",
-    "Uid" => "sa",             // El usuario que uséis para entrar al SQL
-    "PWD" => "Aneto_3404"   // La contraseña del usuario sa
+    "Uid" => "sa",
+    "PWD" => "Aneto_3404",
+    "CharacterSet" => "UTF-8",
+    // ESTO ES LA CLAVE: Ignora el certificado SSL para que conecte en local
+    "TrustServerCertificate" => true 
 );
 
-// Establir connexió
+// Establecer conexión
 $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 if (!$conn) {
-    die(json_encode(["error" => "Error de connexió"]));
+    // Si falla, esto nos dirá EXACTAMENTE por qué (usuario, contraseña o red)
+    header('Content-Type: application/json');
+    die(json_encode([
+        "error" => "Error de conexión",
+        "detalles" => sqlsrv_errors()
+    ]));
 }
 
 $fecha_hoy = date("Y-m-d");
 
-// Consulta con TUS nombres de columna
+// Consulta (Asegúrate de que 'Data' y 'Clase_apuntada' se escriben así en tu BD)
 $sql = "SELECT Clase_apuntada, COUNT(*) as total 
         FROM Reservas 
         WHERE Data = ? 
@@ -30,6 +38,9 @@ if ($stmt) {
     while($row = sqlsrv_fetch_array($stmt, SQL_SRV_FETCH_ASSOC)) {
         $counts[$row['Clase_apuntada']] = (int)$row['total'];
     }
+} else {
+    header('Content-Type: application/json');
+    die(json_encode(["error" => "Error en la consulta SQL", "detalles" => sqlsrv_errors()]));
 }
 
 header('Content-Type: application/json');
