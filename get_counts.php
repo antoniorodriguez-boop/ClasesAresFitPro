@@ -18,6 +18,12 @@ if (!$conn) {
     die(json_encode(["error" => "Error de conexión"]));
 }
 
+// --- 1. MANTENIMIENTO AUTOMÁTICO (7 DÍAS) ---
+// Borra registros donde la fecha sea anterior a hace 7 días
+$sql_clear = "DELETE FROM Reservas WHERE Data < DATEADD(day, -7, GETDATE())";
+sqlsrv_query($conn, $sql_clear);
+
+// --- 2. OBTENER CONTEOS PARA HOY ---
 $fecha_hoy = date("Y-m-d");
 
 // Consulta estándar
@@ -36,7 +42,7 @@ if ($stmt !== false) {
     }
 }
 
-// Si la base de datos está vacía, enviamos un objeto vacío limpio
+// Enviamos los resultados en JSON
 header('Content-Type: application/json');
 echo json_encode($counts);
 
