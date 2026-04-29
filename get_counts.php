@@ -35,9 +35,9 @@ $stmt = sqlsrv_query($conn, $sql, $params);
 
 $counts = [];
 if ($stmt) {
-    while($row = sqlsrv_fetch_array($stmt, SQL_SRV_FETCH_ASSOC)) {
-        $counts[$row['Clase_apuntada']] = (int)$row['total'];
-    }
+    while($row = sqlsrv_fetch_array($stmt, 1)) { 
+    $counts[$row['Clase_apuntada']] = (int)$row['total'];
+}
 } else {
     header('Content-Type: application/json');
     die(json_encode(["error" => "Error en la consulta SQL", "detalles" => sqlsrv_errors()]));
