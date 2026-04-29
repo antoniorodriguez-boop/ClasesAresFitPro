@@ -3,7 +3,7 @@
 $serverName = "192.168.70.10"; // Ej: "192.168.1.50"
 $connectionOptions = array(
     "Database" => "AresFitPro_DB",
-    "Uid" => "Administrador",             // El usuario que uséis para entrar al SQL
+    "Uid" => "sa",             // El usuario que uséis para entrar al SQL
     "PWD" => "Aneto_3404"   // La contraseña del usuario sa
 );
 
