@@ -12,13 +12,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 if (!$conn) {
     header('Content-Type: application/json');
-    die(json_encode(["error" => "Error de conexión", "detalles" => sqlsrv_errors()]));
+    die(json_encode(["error" => "Error de conexión"]));
 }
 
 $fecha_hoy = date("Y-m-d");
 
-// Forzamos los nombres con [] para evitar problemas de mayúsculas
-$sql = "SELECT Clase_apuntada as clase, COUNT(*) as total 
+// Consulta simplificada
+$sql = "SELECT Clase_apuntada, COUNT(*) 
         FROM Reservas 
         WHERE Data = ? 
         GROUP BY Clase_apuntada";
@@ -28,10 +28,12 @@ $stmt = sqlsrv_query($conn, $sql, $params);
 
 $counts = [];
 if ($stmt) {
-    // Usamos el número 1 para evitar fallos de constantes
-    while($row = sqlsrv_fetch_array($stmt, 1)) {
-        // Usamos los alias 'clase' y 'total' que pusimos en la consulta arriba
-        $counts[$row['clase']] = (int)$row['total'];
+    // Usamos el número 2 para obtener un array con números (0, 1, 2...)
+    // En lugar de nombres, así no fallará nunca el "array key"
+    while($row = sqlsrv_fetch_array($stmt, 2)) {
+        $nombre_clase = $row[0]; // Primera columna (Clase_apuntada)
+        $cantidad = (int)$row[1]; // Segunda columna (COUNT)
+        $counts[$nombre_clase] = $cantidad;
     }
 }
 
